@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat-App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background-color: #0f0f0f;
+            color: #f0f0f0;
+            transition: background-color 0.3s ease;
+            overflow-x: hidden;
+        }
+        
+        /* Login Page Styles */
+        .login-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            padding: 20px;
+        }
+        
+        .login-container {
+            width: 420px;
+            height: 500px;
+            background: #1a1a1a;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4),
+                        0 0 0 1px rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 30px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+            border-radius: 24px 24px 0 0;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+            width: 100%;
+        }
+        
+        .login-title {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .login-subtitle {
+            font-size: 14px;
+            color: #a0a0a0;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .login-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .input-group {
+            width: 100%;
+            margin-bottom: 28px;
+        }
+        
+        .input-label {
+            display: block;
+            font-size: 13px;
+            color: #a0a0a0;
+            margin-bottom: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        .textbox {
+            width: 100%;
+            height: 52px;
+            border: 1.5px solid #333333;
+            border-radius: 14px;
+            padding: 0 20px;
+            font-size: 15px;
+            color: #f0f0f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #252525;
+            font-weight: 500;
+        }
+        
+        .textbox:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: #2a2a2a;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #a0a0a0;
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.2s;
+        }
+        
+        .toggle-password:hover {
+            color: #f0f0f0;
+        }
+        
+        .login-button {
+            width: 160px;
+            height: 48px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 10px;
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.3);
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+        
+        .login-button:active {
+            transform: translateY(0);
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 15px;
+            text-align: center;
+            min-height: 20px;
+            font-weight: 500;
+            display: none;
+        }
+        
+        /* Chat App Page Styles */
+        .chat-app {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            background: #0f0f0f;
+        }
+        
+        /* Chat Interface Styles */
+        .chat-interface {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            background: #0f0f0f;
+        }
+        
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            height: 72px;
+            background: rgba(26, 26, 26, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #333333;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .chat-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            height: 72px;
+            background: rgba(26, 26, 26, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #333333;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .app-name {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+        
+        /* Back button in chat interface */
+        .back-button-container {
+            display: flex;
+            align-items: center;
+            background: #d3d3d3; /* Silver color */
+            border-radius: 18px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #a0a0a0;
+        }
+        
+        .back-button-container:hover {
+            background: #e0e0e0;
+            transform: translateY(-1px);
+        }
+        
+        .back-arrow {
+            color: #2a2a2a;
+            font-size: 20px;
+            font-weight: 700;
+            margin-right: 12px;
+        }
+        
+        .back-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2a2a2a;
+        }
+        
+        .chat-recipient {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f0f0f0;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .profile-container {
+            display: flex;
+            align-items: center;
+            background: #2a2a2a;
+            border-radius: 18px;
+            padding: 8px 20px 8px 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border: 1px solid #333333;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            z-index: 101;
+        }
+        
+        .profile-container:hover {
+            background: #303030;
+            transform: translateY(-1px);
+        }
+        
+        .profile-pic {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+            margin-right: 14px;
+            border: 2px solid #404040;
+        }
+        
+        .profile-username {
+            font-size: 16px;
+            font-weight: 700;
+            color: #f0f0f0;
+        }
+        
+        /* Profile Popup */
+        .profile-popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .profile-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px;
+            background: #1a1a1a;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid #333333;
+            z-index: 1001;
+            animation: popupIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .popup-profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 42px;
+            margin-bottom: 25px;
+            border: 4px solid #404040;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .popup-username {
+            font-size: 28px;
+            font-weight: 800;
+            color: #f0f0f0;
+            margin-bottom: 30px;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+        
+        .logout-button {
+            width: 200px;
+            height: 52px;
+            background: #2a2a2a;
+            border: 1.5px solid #ef4444;
+            border-radius: 14px;
+            color: #ef4444;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .logout-button:hover {
+            background: #ef4444;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+        }
+        
+        .popup-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #a0a0a0;
+            font-size: 22px;
+            cursor: pointer;
+            transition: color 0.2s;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .popup-close:hover {
+            color: #f0f0f0;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Profiles List with Online Status */
+        .profiles-section {
+            padding: 40px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .section-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #f0f0f0;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            letter-spacing: 1px;
+        }
+        
+        .section-title i {
+            margin-right: 16px;
+            color: #8b5cf6;
+            font-size: 28px;
+        }
+        
+        /* Line-by-line profile cards with online status */
+        .profiles-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+        
+        .profile-card {
+            background: #1a1a1a;
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            border: 1px solid #333333;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            min-height: 120px;
+        }
+        
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(to bottom, #6366f1, #8b5cf6);
+            border-radius: 24px 0 0 24px;
+        }
+        
+        .profile-card:hover {
+            background: #252525;
+            transform: translateY(-3px);
+            border-color: #444444;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .card-profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            font-size: 32px;
+            margin-right: 30px;
+            border: 4px solid #404040;
+            flex-shrink: 0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .online-status {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #1a1a1a;
+        }
+        
+        .online {
+            background-color: #10b981;
+        }
+        
+        .offline {
+            background-color: #6b7280;
+        }
+        
+        .card-info {
+            flex: 1;
+        }
+        
+        .card-username {
+            font-size: 32px;
+            font-weight: 800;
+            color: #f0f0f0;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .card-status {
+            font-size: 16px;
+            color: #a0a0a0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        
+        .last-active {
+            color: #8b5cf6;
+            font-weight: 600;
+        }
+        
+        .new-message-indicator {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 12px;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Chat Interface */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid #333333;
+            background: rgba(26, 26, 26, 0.8);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-with {
+            font-size: 24px;
+            font-weight: 700;
+            color: #f0f0f0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-with i {
+            margin-right: 15px;
+            color: #8b5cf6;
+            font-size: 22px;
+        }
+        
+        .chat-status {
+            font-size: 14px;
+            color: #a0a0a0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .messages-container {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .message-input-container {
+            padding: 20px 30px;
+            border-top: 1px solid #333333;
+            background: rgba(26, 26, 26, 0.9);
+        }
+        
+        .message-input-wrapper {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .message-input {
+            flex: 1;
+            height: 56px;
+            background: #2a2a2a;
+            border: 1.5px solid #333333;
+            border-radius: 18px;
+            padding: 0 25px;
+            font-size: 16px;
+            color: #f0f0f0;
+            font-weight: 500;
+        }
+        
+        .message-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: #2f2f2f;
+        }
+        
+        .send-button {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            border-radius: 18px;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+        
+        .send-button:active {
+            transform: translateY(0);
+        }
+        
+        /* Message Bubbles with Status Indicators */
+        .message {
+            max-width: 70%;
+            padding: 18px 24px;
+            border-radius: 24px;
+            position: relative;
+            animation: messageIn 0.3s ease;
+        }
+        
+        .sent {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border-bottom-right-radius: 8px;
+        }
+        
+        .received {
+            align-self: flex-start;
+            background: #2a2a2a;
+            color: #f0f0f0;
+            border-bottom-left-radius: 8px;
+            border: 1px solid #333333;
+        }
+        
+        .message-time {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 6px;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+        }
+        
+        .received .message-time {
+            color: #a0a0a0;
+            justify-content: flex-start;
+        }
+        
+        .message-sender {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .received .message-sender {
+            color: #8b5cf6;
+        }
+        
+        /* WhatsApp-like message status indicators - UPDATED FOR GREEN TICKS */
+        .message-status {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .single-tick {
+            color: #d3d3d3; /* Silver color for sent */
+        }
+        
+        .double-tick {
+            color: #d3d3d3; /* Silver color for delivered */
+        }
+        
+        .double-tick-seen {
+            color: #10b981; /* GREEN color for seen */
+        }
+        
+        /* No messages state */
+        .no-messages {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0a0a0;
+        }
+        
+        .no-messages i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #404040;
+        }
+        
+        .no-messages h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #a0a0a0;
+            display: none;
+        }
+        
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 25px;
+            color: #404040;
+        }
+        
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .empty-state p {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-container {
+                width: 90%;
+                height: auto;
+                padding: 35px 25px;
+            }
+            
+            .navbar, .chat-navbar {
+                padding: 0 20px;
+            }
+            
+            .profile-popup {
+                width: 90%;
+                max-width: 320px;
+            }
+            
+            .profiles-section {
+                padding: 30px 20px;
+            }
+            
+            .section-title {
+                font-size: 22px;
+                margin-bottom: 30px;
+            }
+            
+            .profile-card {
+                padding: 25px;
+                min-height: 100px;
+            }
+            
+            .card-profile-pic {
+                width: 70px;
+                height: 70px;
+                font-size: 28px;
+                margin-right: 25px;
+            }
+            
+            .card-username {
+                font-size: 28px;
+            }
+            
+            .messages-container {
+                padding: 20px;
+            }
+            
+            .message-input-container {
+                padding: 15px 20px;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .profile-card {
+                padding: 20px;
+                min-height: 90px;
+            }
+            
+            .card-profile-pic {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+                margin-right: 20px;
+            }
+            
+            .card-username {
+                font-size: 24px;
+            }
+            
+            .section-title {
+                font-size: 20px;
+            }
+            
+            .message {
+                max-width: 90%;
+                padding: 15px 20px;
+            }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #333333;
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #404040;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes popupIn {
+            from { 
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            to { 
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes messageIn {
+            from { 
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        
+        .profile-card {
+            animation: slideIn 0.4s ease forwards;
+        }
+        
+        .profile-card:nth-child(1) { animation-delay: 0.1s; }
+        .profile-card:nth-child(2) { animation-delay: 0.2s; }
+        .profile-card:nth-child(3) { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="login-page" id="loginPage">
+        <div class="login-container">
+            <div class="login-header">
+                <h1 class="login-title">Log In Chat-Web</h1>
+                <p class="login-subtitle">Enter your credentials to access your account</p>
+            </div>
+            
+            <form class="login-form" id="loginForm">
+                <div class="input-group">
+                    <label class="input-label" for="username">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        class="textbox" 
+                        placeholder="Enter your username"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label" for="password">Password</label>
+                    <div class="password-container">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            class="textbox" 
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <button type="button" class="toggle-password" id="togglePassword">
+                            <i class="far fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="error-message" id="errorMessage">
+                    Invalid username or password
+                </div>
+                
+                <button type="submit" class="login-button">Log In</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Chat App Main Page -->
+    <div class="chat-app" id="chatApp">
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="app-name">Chat-app</div>
+            <div class="profile-container" id="navProfile">
+                <!-- Profile info will be inserted here by JavaScript -->
+            </div>
+        </nav>
+        
+        <!-- Profiles List -->
+        <div class="profiles-section">
+            <h2 class="section-title">
+                <i class="fas fa-user-friends"></i>
+                Comrades
+            </h2>
+            
+            <div class="profiles-list" id="profilesList">
+                <!-- Profiles will be inserted here by JavaScript -->
+            </div>
+            
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-user-friends"></i>
+                <h3>No comrades available</h3>
+                <p>You're the only user online</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chat Interface Page -->
+    <div class="chat-interface" id="chatInterface">
+        <!-- Chat Navigation Bar -->
+        <nav class="chat-navbar">
+            <div class="back-button-container" id="backButton">
+                <div class="back-arrow">←</div>
+                <div class="back-text">Back</div>
+            </div>
+            <div class="chat-recipient" id="chatRecipient">
+                <!-- Recipient name will be inserted here -->
+            </div>
+            <div style="width: 120px;"></div> <!-- Spacer for alignment -->
+        </nav>
+        
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <div>
+                    <div class="chat-with">
+                        <i class="fas fa-comment-dots"></i>
+                        Chat with <span id="chatWithName"></span>
+                    </div>
+                    <div class="chat-status" id="chatStatus">
+                        <div class="status-dot" id="statusDot"></div>
+                        <span id="statusText">Last seen recently</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="messages-container" id="messagesContainer">
+                <!-- Messages will be inserted here by JavaScript -->
+                <div class="no-messages" id="noMessages">
+                    <i class="fas fa-comments"></i>
+                    <h3>No messages yet</h3>
+                    <p>Start the conversation by sending a message</p>
+                </div>
+            </div>
+            
+            <div class="message-input-container">
+                <div class="message-input-wrapper">
+                    <input 
+                        type="text" 
+                        class="message-input" 
+                        id="messageInput" 
+                        placeholder="Type your message here..."
+                        autocomplete="off"
+                    >
+                    <button class="send-button" id="sendButton">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Popup (Hidden during login) -->
+    <div class="profile-popup-overlay" id="profilePopupOverlay"></div>
+    <div class="profile-popup" id="profilePopup">
+        <button class="popup-close" id="popupClose">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="popup-profile-pic" id="popupProfilePic">
+            <!-- Profile picture will be inserted here -->
+        </div>
+        <div class="popup-username" id="popupUsername">
+            <!-- Username will be inserted here -->
+        </div>
+        <button class="logout-button" id="logoutButton">
+            <i class="fas fa-sign-out-alt"></i>
+            Log Out
+        </button>
+    </div>
+
+    <script>
+        // Valid credentials
+        const validCredentials = {
+            'ace': 'atnainbta',
+            'you': 'asdfghjkl',
+            'mee': 'lkjhgfdsa',
+            'tnz': 'qwertyuiop'
+        };
+        
+        // User profile data
+        const userProfiles = {
+            'ace': { initial: 'A', color: 'linear-gradient(135deg, #6366f1, #8b5cf6)' },
+            'you': { initial: 'Y', color: 'linear-gradient(135deg, #8b5cf6, #ec4899)' },
+            'mee': { initial: 'M', color: 'linear-gradient(135deg, #10b981, #059669)' },
+            'tnz': { initial: 'T', color: 'linear-gradient(135deg, #f59e0b, #d97706)' }
+        };
+        
+        // Storage for all messages between users
+        let allMessages = JSON.parse(localStorage.getItem('chatAppMessages')) || {};
+        
+        // Storage for user activity (last login time)
+        let userActivity = JSON.parse(localStorage.getItem('chatAppActivity')) || {};
+        
+        // Initialize message storage for all users if not exists
+        function initializeMessageStorage() {
+            const users = Object.keys(userProfiles);
+            users.forEach(sender => {
+                if (!allMessages[sender]) allMessages[sender] = {};
+                users.forEach(receiver => {
+                    if (sender !== receiver && !allMessages[sender][receiver]) {
+                        allMessages[sender][receiver] = [];
+                    }
+                });
+            });
+            saveMessagesToStorage();
+        }
+        
+        // Save messages to localStorage
+        function saveMessagesToStorage() {
+            localStorage.setItem('chatAppMessages', JSON.stringify(allMessages));
+        }
+        
+        // Save activity to localStorage
+        function saveActivityToStorage() {
+            localStorage.setItem('chatAppActivity', JSON.stringify(userActivity));
+        }
+        
+        // Update user activity (when user logs in)
+        function updateUserActivity(username) {
+            userActivity[username] = {
+                lastActive: new Date().toISOString(),
+                isOnline: true
+            };
+            saveActivityToStorage();
+        }
+        
+        // Get user status text
+        function getUserStatus(user) {
+            if (!userActivity[user]) return "Last seen recently";
+            
+            const lastActive = new Date(userActivity[user].lastActive);
+            const now = new Date();
+            const diffMs = now - lastActive;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (userActivity[user].isOnline) {
+                return "Online";
+            } else if (diffMins < 1) {
+                return "Last seen just now";
+            } else if (diffMins < 60) {
+                return `Last seen ${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+            } else if (diffHours < 24) {
+                return `Last seen ${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            } else {
+                return `Last seen ${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            }
+        }
+        
+        // Check if user is online (considered online if active within 2 minutes)
+        function isUserOnline(user) {
+            if (!userActivity[user]) return false;
+            
+            const lastActive = new Date(userActivity[user].lastActive);
+            const now = new Date();
+            const diffMs = now - lastActive;
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            return diffMins < 2; // Online if active within 2 minutes
+        }
+        
+        // DOM Elements
+        const loginPage = document.getElementById('loginPage');
+        const chatApp = document.getElementById('chatApp');
+        const chatInterface = document.getElementById('chatInterface');
+        const loginForm = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const navProfile = document.getElementById('navProfile');
+        const profilesList = document.getElementById('profilesList');
+        const emptyState = document.getElementById('emptyState');
+        const profilePopupOverlay = document.getElementById('profilePopupOverlay');
+        const profilePopup = document.getElementById('profilePopup');
+        const popupClose = document.getElementById('popupClose');
+        const logoutButton = document.getElementById('logoutButton');
+        const popupProfilePic = document.getElementById('popupProfilePic');
+        const popupUsername = document.getElementById('popupUsername');
+        const backButton = document.getElementById('backButton');
+        const chatRecipient = document.getElementById('chatRecipient');
+        const chatWithName = document.getElementById('chatWithName');
+        const chatStatus = document.getElementById('chatStatus');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const noMessages = document.getElementById('noMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        
+        let currentUser = null;
+        let currentChatRecipient = null;
+        let profileClickListener = null;
+        let activityInterval = null;
+        
+        // Initialize message storage
+        initializeMessageStorage();
+        
+        // Start activity tracking for current user
+        function startActivityTracking() {
+            if (activityInterval) clearInterval(activityInterval);
+            
+            // Update activity every 30 seconds
+            activityInterval = setInterval(() => {
+                if (currentUser) {
+                    updateUserActivity(currentUser);
+                    updateOnlineStatus();
+                }
+            }, 30000);
+        }
+        
+        // Toggle password visibility
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            const eyeIcon = togglePassword.querySelector('i');
+            if (type === 'text') {
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        });
+        
+        // Login form submission
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            // Reset error message
+            errorMessage.style.display = 'none';
+            
+            // Validate credentials
+            if (validCredentials[username] && validCredentials[username] === password) {
+                // Successful login
+                currentUser = username;
+                
+                // Update user activity
+                updateUserActivity(username);
+                
+                // Show loading state
+                const loginButton = loginForm.querySelector('.login-button');
+                const originalText = loginButton.textContent;
+                loginButton.textContent = 'Authenticating...';
+                loginButton.disabled = true;
+                
+                // Simulate authentication delay
+                setTimeout(() => {
+                    // Switch to chat app
+                    loginPage.style.display = 'none';
+                    chatApp.style.display = 'flex';
+                    chatInterface.style.display = 'none';
+                    
+                    // Start activity tracking
+                    startActivityTracking();
+                    
+                    // Update UI with current user
+                    updateUIForUser(username);
+                    
+                    // Reset login form
+                    loginButton.textContent = originalText;
+                    loginButton.disabled = false;
+                    loginForm.reset();
+                }, 800);
+            } else {
+                // Failed login
+                errorMessage.style.display = 'block';
+                passwordInput.value = '';
+                passwordInput.focus();
+                
+                // Shake animation for error
+                loginForm.style.animation = 'none';
+                setTimeout(() => {
+                    loginForm.style.animation = 'shake 0.5s ease-in-out';
+                }, 10);
+                
+                // Remove shake animation after it completes
+                setTimeout(() => {
+                    loginForm.style.animation = '';
+                }, 500);
+            }
+        });
+        
+        // Update UI for logged in user
+        function updateUIForUser(username) {
+            const profileData = userProfiles[username];
+            
+            // Clear previous profile data completely
+            navProfile.innerHTML = '';
+            
+            // Update navigation profile with new user
+            navProfile.innerHTML = `
+                <div class="profile-pic" style="background: ${profileData.color}">
+                    ${profileData.initial}
+                </div>
+                <div class="profile-username">${username}</div>
+            `;
+            
+            // Remove previous click event listener if exists
+            if (profileClickListener) {
+                navProfile.removeEventListener('click', profileClickListener);
+            }
+            
+            // Add new click event to open profile popup
+            profileClickListener = openProfilePopup;
+            navProfile.addEventListener('click', profileClickListener);
+            
+            // Generate other profiles (excluding current user)
+            const otherUsers = Object.keys(userProfiles).filter(user => user !== username);
+            
+            if (otherUsers.length > 0) {
+                emptyState.style.display = 'none';
+                profilesList.innerHTML = '';
+                
+                otherUsers.forEach((user, index) => {
+                    const userData = userProfiles[user];
+                    const profileCard = document.createElement('div');
+                    profileCard.className = 'profile-card';
+                    profileCard.style.animationDelay = `${(index + 1) * 0.1}s`;
+                    
+                    // Check if user has new messages
+                    const hasNewMessages = checkForNewMessages(user);
+                    
+                    // Get user status
+                    const userIsOnline = isUserOnline(user);
+                    const statusText = getUserStatus(user);
+                    
+                    // Create larger profile card with status
+                    profileCard.innerHTML = `
+                        <div class="card-profile-pic" style="background: ${userData.color}">
+                            ${userData.initial}
+                            <div class="online-status ${userIsOnline ? 'online' : 'offline'}"></div>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-username">${user}</div>
+                            <div class="card-status">
+                                <span class="last-active">${statusText}</span>
+                                ${hasNewMessages ? '<span class="new-message-indicator">New Message</span>' : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add click event to open chat with this profile
+                    profileCard.addEventListener('click', () => {
+                        openChatWithUser(user);
+                    });
+                    
+                    profilesList.appendChild(profileCard);
+                });
+            } else {
+                emptyState.style.display = 'block';
+                profilesList.innerHTML = '';
+            }
+        }
+        
+        // Check if there are new messages from a user
+        function checkForNewMessages(sender) {
+            if (!currentUser || !allMessages[sender] || !allMessages[sender][currentUser]) {
+                return false;
+            }
+            
+            const messages = allMessages[sender][currentUser];
+            // Check if any message hasn't been seen
+            return messages.some(msg => !msg.seen);
+        }
+        
+        // Update online status for all users
+        function updateOnlineStatus() {
+            const profileCards = profilesList.querySelectorAll('.profile-card');
+            profileCards.forEach(card => {
+                const username = card.querySelector('.card-username').textContent;
+                const onlineStatus = card.querySelector('.online-status');
+                const statusSpan = card.querySelector('.last-active');
+                
+                if (username && onlineStatus && statusSpan) {
+                    const userIsOnline = isUserOnline(username);
+                    const statusText = getUserStatus(username);
+                    
+                    onlineStatus.className = `online-status ${userIsOnline ? 'online' : 'offline'}`;
+                    statusSpan.textContent = statusText;
+                    
+                    // Check for new messages indicator
+                    const hasNewMessages = checkForNewMessages(username);
+                    const newMsgIndicator = card.querySelector('.new-message-indicator');
+                    
+                    if (hasNewMessages && !newMsgIndicator) {
+                        const indicator = document.createElement('span');
+                        indicator.className = 'new-message-indicator';
+                        indicator.textContent = 'New Message';
+                        card.querySelector('.card-status').appendChild(indicator);
+                    } else if (!hasNewMessages && newMsgIndicator) {
+                        newMsgIndicator.remove();
+                    }
+                }
+            });
+        }
+        
+        // Open chat with a user
+        function openChatWithUser(recipient) {
+            currentChatRecipient = recipient;
+            
+            // Update chat interface with recipient info
+            chatRecipient.textContent = recipient;
+            chatWithName.textContent = recipient;
+            
+            // Update chat status
+            updateChatStatus(recipient);
+            
+            // Switch to chat interface
+            chatApp.style.display = 'none';
+            chatInterface.style.display = 'flex';
+            
+            // Mark messages from this user as seen
+            markMessagesAsSeen(recipient);
+            
+            // Load messages for this chat
+            loadChatMessages(recipient);
+            
+            // Clear message input and focus
+            messageInput.value = '';
+            messageInput.focus();
+        }
+        
+        // Update chat status for recipient
+        function updateChatStatus(recipient) {
+            const isOnline = isUserOnline(recipient);
+            const status = getUserStatus(recipient);
+            
+            statusDot.className = `status-dot ${isOnline ? 'online' : 'offline'}`;
+            statusText.textContent = status;
+        }
+        
+        // Mark messages from a user as seen
+        function markMessagesAsSeen(sender) {
+            if (!currentUser || !allMessages[sender] || !allMessages[sender][currentUser]) {
+                return;
+            }
+            
+            const messages = allMessages[sender][currentUser];
+            let updated = false;
+            
+            messages.forEach(msg => {
+                if (!msg.seen) {
+                    msg.seen = true;
+                    msg.seenAt = new Date().toISOString();
+                    updated = true;
+                    
+                    // Notify the sender that their message was seen
+                    if (allMessages[currentUser] && allMessages[currentUser][sender]) {
+                        const sentMessages = allMessages[currentUser][sender];
+                        sentMessages.forEach(sentMsg => {
+                            if (sentMsg.timestamp === msg.timestamp) {
+                                sentMsg.seen = true;
+                                sentMsg.seenAt = new Date().toISOString();
+                            }
+                        });
+                    }
+                }
+            });
+            
+            if (updated) {
+                saveMessagesToStorage();
+                updateOnlineStatus(); // Update UI to remove new message indicator
+            }
+        }
+        
+        // Load messages for current chat
+        function loadChatMessages(recipient) {
+            // Clear messages container
+            messagesContainer.innerHTML = '';
+            
+            // Get messages from both sides
+            const messagesFromMe = allMessages[currentUser]?.[recipient] || [];
+            const messagesToMe = allMessages[recipient]?.[currentUser] || [];
+            
+            // Combine and sort all messages by timestamp
+            const allMessagesCombined = [
+                ...messagesFromMe.map(msg => ({ 
+                    ...msg, 
+                    sender: currentUser, 
+                    type: 'sent',
+                    status: msg.seen ? 'seen' : (msg.delivered ? 'delivered' : 'sent')
+                })),
+                ...messagesToMe.map(msg => ({ 
+                    ...msg, 
+                    sender: recipient, 
+                    type: 'received',
+                    status: 'received'
+                }))
+            ].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            
+            if (allMessagesCombined.length === 0) {
+                // Show no messages state
+                const noMsgClone = noMessages.cloneNode(true);
+                messagesContainer.appendChild(noMsgClone);
+            } else {
+                // Display all messages
+                allMessagesCombined.forEach(msg => {
+                    displayMessage(msg.text, msg.sender, msg.type, msg.timestamp, msg.status);
+                });
+                
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
+        
+        // Display a message in the chat
+        function displayMessage(text, sender, type, timestamp, status) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}`;
+            
+            // Format time
+            const time = new Date(timestamp);
+            const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            // Show sender name for received messages
+            const senderDisplay = type === 'received' ? 
+                `<div class="message-sender">${sender}</div>` : '';
+            
+            // Status indicator for sent messages - UPDATED FOR GREEN TICKS
+            let statusIndicator = '';
+            if (type === 'sent') {
+                let statusClass = '';
+                let statusIcon = '';
+                
+                if (status === 'sent') {
+                    statusClass = 'single-tick';
+                    statusIcon = '✓';
+                } else if (status === 'delivered') {
+                    statusClass = 'double-tick';
+                    statusIcon = '✓✓';
+                } else if (status === 'seen') {
+                    statusClass = 'double-tick-seen';
+                    statusIcon = '✓✓'; // Green ticks for seen
+                }
+                
+                statusIndicator = `<span class="message-status ${statusClass}">${statusIcon}</span>`;
+            }
+            
+            messageElement.innerHTML = `
+                ${senderDisplay}
+                ${text}
+                <div class="message-time">
+                    ${timeString}
+                    ${statusIndicator}
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageElement);
+        }
+        
+        // Back button functionality
+        backButton.addEventListener('click', function() {
+            chatInterface.style.display = 'none';
+            chatApp.style.display = 'flex';
+            currentChatRecipient = null;
+            updateUIForUser(currentUser);
+        });
+        
+        // Send message functionality
+        function sendMessage() {
+            const messageText = messageInput.value.trim();
+            if (!messageText || !currentChatRecipient || !currentUser) return;
+            
+            // Create message object
+            const message = {
+                text: messageText,
+                timestamp: new Date().toISOString(),
+                delivered: false,
+                seen: false
+            };
+            
+            // Add to messages storage
+            if (!allMessages[currentUser]) allMessages[currentUser] = {};
+            if (!allMessages[currentUser][currentChatRecipient]) {
+                allMessages[currentUser][currentChatRecipient] = [];
+            }
+            allMessages[currentUser][currentChatRecipient].push(message);
+            
+            // Save to storage
+            saveMessagesToStorage();
+            
+            // Display the sent message
+            displayMessage(messageText, currentUser, 'sent', message.timestamp, 'sent');
+            
+            // Clear input and focus
+            messageInput.value = '';
+            messageInput.focus();
+            
+            // Hide no messages state if it exists
+            const noMessagesElement = messagesContainer.querySelector('.no-messages');
+            if (noMessagesElement) {
+                noMessagesElement.remove();
+            }
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Simulate delivery after 1 second
+            setTimeout(() => {
+                updateMessageStatus(currentUser, currentChatRecipient, message.timestamp, 'delivered');
+            }, 1000);
+        }
+        
+        // Update message status
+        function updateMessageStatus(sender, receiver, timestamp, status) {
+            if (!allMessages[sender] || !allMessages[sender][receiver]) return;
+            
+            const messages = allMessages[sender][receiver];
+            const messageIndex = messages.findIndex(msg => msg.timestamp === timestamp);
+            
+            if (messageIndex !== -1) {
+                if (status === 'delivered') {
+                    messages[messageIndex].delivered = true;
+                } else if (status === 'seen') {
+                    messages[messageIndex].seen = true;
+                    messages[messageIndex].seenAt = new Date().toISOString();
+                }
+                
+                saveMessagesToStorage();
+                
+                // Update UI if we're in the chat
+                if (currentChatRecipient === receiver) {
+                    loadChatMessages(receiver);
+                }
+            }
+        }
+        
+        // Send message on button click
+        sendButton.addEventListener('click', sendMessage);
+        
+        // Send message on Enter key
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Open profile popup (only available after login)
+        function openProfilePopup() {
+            if (!currentUser) return;
+            
+            const profileData = userProfiles[currentUser];
+            
+            // Update popup content
+            popupProfilePic.style.background = profileData.color;
+            popupProfilePic.textContent = profileData.initial;
+            popupUsername.textContent = currentUser;
+            
+            // Show popup and overlay
+            profilePopupOverlay.style.display = 'block';
+            profilePopup.style.display = 'flex';
+            
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Close profile popup
+        function closeProfilePopup() {
+            profilePopupOverlay.style.display = 'none';
+            profilePopup.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Logout function
+        function logout() {
+            // Close popup first
+            closeProfilePopup();
+            
+            // Show loading state on logout button
+            logoutButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging out...';
+            logoutButton.disabled = true;
+            
+            // Simulate logout delay
+            setTimeout(() => {
+                // Switch back to login page
+                chatApp.style.display = 'none';
+                chatInterface.style.display = 'none';
+                loginPage.style.display = 'flex';
+                
+                // Mark user as offline
+                if (currentUser && userActivity[currentUser]) {
+                    userActivity[currentUser].isOnline = false;
+                    saveActivityToStorage();
+                }
+                
+                // Clear all user data
+                resetUserData();
+                
+                // Reset logout button
+                logoutButton.innerHTML = '<i class="fas fa-sign-out-alt"></i> Log Out';
+                logoutButton.disabled = false;
+                
+                // Auto-focus on username field
+                document.getElementById('username').focus();
+            }, 600);
+        }
+        
+        // Reset all user data
+        function resetUserData() {
+            // Clear current user
+            currentUser = null;
+            currentChatRecipient = null;
+            
+            // Clear navigation profile
+            navProfile.innerHTML = '';
+            
+            // Clear profiles list
+            profilesList.innerHTML = '';
+            
+            // Hide empty state
+            emptyState.style.display = 'none';
+            
+            // Clear message input
+            messageInput.value = '';
+            
+            // Stop activity tracking
+            if (activityInterval) {
+                clearInterval(activityInterval);
+                activityInterval = null;
+            }
+            
+            // Remove click event listener
+            if (profileClickListener) {
+                navProfile.removeEventListener('click', profileClickListener);
+                profileClickListener = null;
+            }
+        }
+        
+        // Event listeners for popup (only set up after login)
+        popupClose.addEventListener('click', closeProfilePopup);
+        profilePopupOverlay.addEventListener('click', closeProfilePopup);
+        logoutButton.addEventListener('click', logout);
+        
+        // Close popup with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && profilePopupOverlay.style.display === 'block') {
+                closeProfilePopup();
+            }
+        });
+        
+        // Add shake animation for login error
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                20%, 40%, 60%, 80% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Auto-focus on username field on page load
+        document.getElementById('username').focus();
+        
+        // Add enter key support
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && document.activeElement.id === 'password') {
+                loginForm.dispatchEvent(new Event('submit'));
+            }
+        });
+        
+        // Clear form on page load to ensure fresh state
+        window.addEventListener('load', function() {
+            loginForm.reset();
+            resetUserData();
+            
+            // Initialize activity for all users if not exists
+            const users = Object.keys(userProfiles);
+            users.forEach(user => {
+                if (!userActivity[user]) {
+                    userActivity[user] = {
+                        lastActive: new Date().toISOString(),
+                        isOnline: false
+                    };
+                }
+            });
+            saveActivityToStorage();
+        });
+    </script>
+</body>
+</html>
